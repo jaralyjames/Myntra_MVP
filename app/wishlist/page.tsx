@@ -52,20 +52,9 @@ export default function WishlistPage() {
               </h1>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Track high-intent price movements (≥10% drops or rises) with live social proof metrics.
+              Track personalised time-bound discounts (10% to 20% OFF) on high-intent items.
             </p>
           </div>
-
-          {/* Quick Action Button to trigger price drop from Wishlist */}
-          {wishlistedProducts.length > 0 && (
-            <button
-              onClick={simulatePriceDrop}
-              className="bg-[#ff3f6c] text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-lg hover:bg-[#e0325b] shadow-md flex items-center gap-2 transition-transform active:scale-95"
-            >
-              <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-              Simulate Price Movement (≥10%)
-            </button>
-          )}
         </div>
 
         {/* Wishlist Items Grid */}
@@ -79,7 +68,6 @@ export default function WishlistPage() {
                 notifyLater,
                 product,
                 hasPriceDropped,
-                hasPriceIncreased,
                 savings,
                 isHighIntent,
               }) => (
@@ -106,13 +94,7 @@ export default function WishlistPage() {
 
                     {hasPriceDropped && (
                       <div className="bg-[#03a685] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 animate-pulse">
-                        <TrendingDown className="w-3 h-3" /> PRICE DROPPED
-                      </div>
-                    )}
-
-                    {hasPriceIncreased && (
-                      <div className="bg-amber-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" /> PRICE INCREASED
+                        <TrendingDown className="w-3 h-3" /> PERSONALISED DISCOUNT
                       </div>
                     )}
                   </div>
@@ -163,7 +145,7 @@ export default function WishlistPage() {
                           <span>Wishlisted price:</span>
                           <span
                             className={
-                              hasPriceDropped || hasPriceIncreased
+                              hasPriceDropped
                                 ? 'line-through font-semibold text-gray-400'
                                 : 'font-bold text-[#282c3f]'
                             }
@@ -178,8 +160,6 @@ export default function WishlistPage() {
                             className={`font-extrabold ${
                               hasPriceDropped
                                 ? 'text-[#03a685] text-sm'
-                                : hasPriceIncreased
-                                ? 'text-amber-600 text-sm'
                                 : 'text-[#282c3f]'
                             }`}
                           >
@@ -191,13 +171,6 @@ export default function WishlistPage() {
                           <div className="pt-1 border-t border-gray-200 flex items-center justify-between text-[11px] font-bold text-[#03a685]">
                             <span>You Save:</span>
                             <span>₹{savings.toLocaleString()} 🎉</span>
-                          </div>
-                        )}
-
-                        {hasPriceIncreased && (
-                          <div className="pt-1 border-t border-gray-200 flex items-center justify-between text-[11px] font-bold text-amber-700">
-                            <span>Price Rose:</span>
-                            <span>+₹{savings.toLocaleString()}</span>
                           </div>
                         )}
                       </div>

@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useShop } from '@/context/ShopContext';
-import { ShoppingBag, Bell, Trash2, X, TrendingDown, TrendingUp, Star, Flame, Zap } from 'lucide-react';
+import { ShoppingBag, Bell, Trash2, X, TrendingDown, TrendingUp, Clock, Flame, Zap } from 'lucide-react';
 
 export const PriceDropModal: React.FC = () => {
   const {
@@ -13,6 +13,30 @@ export const PriceDropModal: React.FC = () => {
     removeFromWishlist,
     closePriceDropModal,
   } = useShop();
+
+  const [timeLeft, setTimeLeft] = useState<string>('15:00');
+
+  useEffect(() => {
+    if (!activePriceDrop?.expiresAt) return;
+
+    const updateTimer = () => {
+      const expiry = new Date(activePriceDrop.expiresAt).getTime();
+      const now = new Date().getTime();
+      const diff = Math.max(0, expiry - now);
+
+      const minutes = Math.floor(diff / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+
+      const formattedMin = String(minutes).padStart(2, '0');
+      const formattedSec = String(seconds).padStart(2, '0');
+
+      setTimeLeft(`${formattedMin}:${formattedSec}`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [activePriceDrop?.expiresAt]);
 
   if (!activePriceDrop) return null;
 
@@ -27,8 +51,6 @@ export const PriceDropModal: React.FC = () => {
     savedAmount,
     movementType,
     recentlySold,
-    recentReviewsCount,
-    recentRating,
     stockLeft,
     isHighIntent,
   } = activePriceDrop;
@@ -67,16 +89,16 @@ export const PriceDropModal: React.FC = () => {
               )}
             </div>
             <div>
-              <div className="flex items-center gap-1.5 mb-1">
+              <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                 <span className="text-[10px] font-extrabold uppercase tracking-widest bg-yellow-300 text-black px-2 py-0.5 rounded-full inline-block">
-                  {isHighIntent ? '🔥 High Intent Item Alert' : '⚡ Price Movement Alert'}
+                  {isHighIntent ? '🔥 Personalised Discount Alert' : '⚡ Time-Bound Price Drop'}
                 </span>
                 <span className="text-[10px] font-extrabold bg-white/20 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
-                  {discountPercentage}% {isDrop ? 'DROP' : 'RISE'}
+                  {discountPercentage}% {isDrop ? 'OFF' : 'RISE'} • {timeLeft}
                 </span>
               </div>
               <h2 className="font-extrabold text-lg leading-tight flex items-center gap-1.5">
-                {isDrop ? 'Price Drop Detected! (≥10%)' : 'Price Movement Alert (≥10%)'}
+                {isDrop ? 'Personalised Time-Bound Discount! 🎉' : 'Price Movement Alert (≥10%)'}
               </h2>
             </div>
           </div>
@@ -113,7 +135,7 @@ export const PriceDropModal: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 font-medium">New Price:</span>
+                  <span className="text-xs text-gray-500 font-medium">Personalised Price:</span>
                   <span
                     className={`text-lg font-extrabold ${
                       isDrop ? 'text-[#03a685]' : 'text-amber-600'
@@ -131,7 +153,7 @@ export const PriceDropModal: React.FC = () => {
                     }`}
                   >
                     {isDrop
-                      ? `You save ₹${savedAmount.toLocaleString()} (${discountPercentage}% OFF)`
+                      ? `Personalised Offer: You save ₹${savedAmount.toLocaleString()} (${discountPercentage}% OFF)`
                       : `Increased by ₹${savedAmount.toLocaleString()} (${discountPercentage}%)`}
                   </span>
                 </div>
@@ -139,8 +161,20 @@ export const PriceDropModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Social Proof & Urgency Section */}
+          {/* Social Proof Section (Reviews & Urgency Stock Alert Excluded) */}
           <div className="mt-4 p-3.5 bg-gradient-to-r from-amber-50 to-rose-50 rounded-xl border border-amber-200/60 space-y-2">
+            {/* Time-Bound Discount Countdown */}
+            <div className="flex items-center justify-between text-xs font-bold text-gray-800">
+              <div className="flex items-center gap-1.5 text-rose-700">
+                <Clock className="w-4 h-4 text-rose-600 animate-pulse" />
+                <span>Time-Bound Discount:</span>
+              </div>
+              <span className="font-extrabold text-rose-700 bg-rose-100/80 px-2.5 py-0.5 rounded-md shadow-xs border border-rose-200">
+                ⏳ Expires in: {timeLeft}
+              </span>
+            </div>
+
+            {/* Recently Sold Count */}
             <div className="flex items-center justify-between text-xs font-bold text-gray-800">
               <div className="flex items-center gap-1.5 text-amber-700">
                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
@@ -149,21 +183,6 @@ export const PriceDropModal: React.FC = () => {
               <span className="font-extrabold text-gray-900 bg-white px-2 py-0.5 rounded-md shadow-xs border border-amber-200">
                 {recentlySold} bought in last 24h
               </span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs font-bold text-gray-800">
-              <div className="flex items-center gap-1.5 text-amber-700">
-                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                <span>Customer Reviews:</span>
-              </div>
-              <span className="font-extrabold text-gray-900 bg-white px-2 py-0.5 rounded-md shadow-xs border border-amber-200">
-                {recentRating} ★ ({recentReviewsCount} recent reviews)
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 pt-1 border-t border-amber-200/40">
-              <Zap className="w-3.5 h-3.5 fill-red-500" />
-              <span>Urgency Alert: High Demand! Only {stockLeft} left in stock.</span>
             </div>
           </div>
 

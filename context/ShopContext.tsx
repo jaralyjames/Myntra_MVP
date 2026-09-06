@@ -196,30 +196,33 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const simulatePriceDrop = () => {
     if (wishlist.length === 0) {
-      showToast('Add at least one high-intent product to your wishlist to simulate price drops.');
+      showToast('Add at least one product to your wishlist to simulate personalized discounts.');
       return;
     }
 
-    // Filter high-intent wishlist items first, fallback to all wishlist items
+    // Filter strictly high-intent wishlist items only
     const highIntentItems = wishlist.filter((item) => item.isHighIntent);
-    const candidateList = highIntentItems.length > 0 ? highIntentItems : wishlist;
 
-    const randomIndex = Math.floor(Math.random() * candidateList.length);
-    const selectedItem = candidateList[randomIndex];
+    if (highIntentItems.length === 0) {
+      showToast('Mark at least one wishlisted product as High Intent (🔥) to simulate a personalised discount.');
+      return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * highIntentItems.length);
+    const selectedItem = highIntentItems[randomIndex];
     const product = products.find((p) => p.id === selectedItem.productId);
 
     if (!product) return;
 
-    // Minimum 10% price change (70% drop, 30% rise)
-    const isDrop = Math.random() > 0.3;
-    const discountPercentage = isDrop
-      ? Math.floor(Math.random() * 26) + 10  // 10% to 35% drop
-      : Math.floor(Math.random() * 16) + 10; // 10% to 25% rise
-
-    const movementType: PriceMovementType = isDrop ? 'DROP' : 'RISE';
-    const multiplier = isDrop ? 1 - discountPercentage / 100 : 1 + discountPercentage / 100;
+    // Always a price drop strictly between 10% and 20%
+    const discountPercentage = Math.floor(Math.random() * 11) + 10; // 10% to 20%
+    const movementType: PriceMovementType = 'DROP';
+    const multiplier = 1 - discountPercentage / 100;
     const newPrice = Math.max(99, Math.round(selectedItem.priceWhenWishlisted * multiplier));
     const savedAmount = Math.abs(selectedItem.priceWhenWishlisted - newPrice);
+
+    // Expiry timestamp (15 minutes from now)
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
     // Update product price in state
     setProducts((prev) =>
@@ -241,7 +244,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       recentReviewsCount: product.recentReviewsCount,
       recentRating: product.recentRating,
       stockLeft: product.stockLeft,
-      isHighIntent: selectedItem.isHighIntent || product.isHighIntent,
+      isHighIntent: true,
+      expiresAt,
+      isPersonalised: true,
     });
   };
 

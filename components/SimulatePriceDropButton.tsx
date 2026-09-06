@@ -18,10 +18,10 @@ export const SimulatePriceDropButton: React.FC = () => {
         <Zap className="w-5 h-5 text-yellow-300 fill-yellow-300 animate-bounce" />
         <div className="text-left leading-tight">
           <span className="block text-xs font-extrabold uppercase tracking-wider text-yellow-200">
-            High Intent Alert
+            High Intent Offer
           </span>
           <span className="block text-sm tracking-wide font-extrabold uppercase">
-            Simulate Price Drop (≥10%)
+            Simulate Personalised Discount
           </span>
         </div>
         {wishlist.length > 0 && (

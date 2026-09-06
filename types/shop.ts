@@ -45,6 +45,8 @@ export type PriceDropEvent = {
   recentRating: number;
   stockLeft: number;
   isHighIntent: boolean;
+  expiresAt: string;
+  isPersonalised: boolean;
 };
 
 export type ShopState = {
